@@ -2,6 +2,8 @@
 
 Inspekt is an AI-powered API proxy and debugging tool built with TypeScript. It doesn't just fetch data — it analyzes the entire HTTP exchange: headers, status codes, and body, to provide a structured, actionable breakdown of what's happening under the hood.
 
+**🌐 Live API:** `https://inspekt-api-production.up.railway.app`
+
 ---
 
 ## ✨ Features
@@ -55,6 +57,20 @@ npm start
 ---
 
 ## 🛠 API Usage
+
+### Hosted (No Setup Required)
+
+The API is live and free to use:
+
+```
+POST https://inspekt-api-production.up.railway.app/api/v1/analyze
+```
+
+### Self-Hosted
+
+Clone the repo and run it yourself (see Quick Start above).
+
+---
 
 ### `POST /api/v1/analyze`
 
@@ -149,6 +165,7 @@ Common issues and how Inspekt handles them:
 |-------|-------|------------|
 | **AI Parsing Error** | Model wrapped JSON in markdown or added extra text | Inspekt automatically strips backticks — if it persists, retry the request |
 | **508 Gateway Timeout** | Upstream API is unreachable or too slow | Verify the target URL is correct and the server isn't behind a firewall |
+| **401 Unauthorized** | Missing or invalid `OPENROUTER_KEY` | Check your `.env` file and ensure the key has active credits |
 | **429 Rate Limited** | AI provider request limit hit | Wait a few seconds — OpenRouter free-tier models have strict RPM limits |
 | **Context Exceeded** | API response body too large for AI context | Inspekt auto-truncates at 8,000 chars via `truncateData()` to prevent this |
 | **Empty Analysis** | `ai_analysis` query param set to `false` | Ensure your request URL isn't accidentally appending `?ai_analysis=false` |
