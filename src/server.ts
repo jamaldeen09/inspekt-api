@@ -5,14 +5,45 @@ import { CustomApiResponse } from "./types/api.types";
 import { truncateData, validateUrl } from "./lib/utils";
 import axios from "axios";
 import analyze from "./services/analyze.service";
+import { ratelimit } from "./upstash";
 const app = express();
+
+app.set('trust proxy', 1);
 
 // Global middlewares
 app.use(express.json());
 app.use(cors({
     origin: "*",
-    methods: ["GET", "PUT", "PATCH"],
+    methods: ["POST"],
 }));
+
+// ** ----- Rate limiting global middleware ------
+app.use(async (req, res: CustomApiResponse, next) => {
+    const identifier = req.ip || "global"; // Limit by IP address
+    const { 
+        success, 
+        limit, 
+        reset, 
+        remaining 
+    } = await ratelimit.limit(identifier);
+
+    // Send standard rate-limit headers (great for your "Inspekt" brand!)
+    res.set({
+        "X-RateLimit-Limit": limit,
+        "X-RateLimit-Remaining": remaining,
+        "X-RateLimit-Reset": reset,
+    });
+
+    if (!success) {
+        return res.status(429).json({
+            success: false,
+            message: "Too many requests. Please slow down.",
+            error: { code: "RATE_LIMITED", statusCode: 429 }
+        });
+    }
+    next();
+});
+
 
 // ** ----- ENDPOINT | /api/v1/analyze --------
 // ** Query params: ai_analysis - BOOLEAN |
@@ -20,9 +51,9 @@ app.use(cors({
 app.post("/api/v1/analyze", async (req, res: CustomApiResponse) => {
     const body = req.body;
     const query = req.query;
-    const shouldAnalyze = query?.ai_analysis !== undefined ? 
-    String(query.ai_analysis).toLowerCase() === 'true' 
-    : true;
+    const shouldAnalyze = query?.ai_analysis !== undefined ?
+        String(query.ai_analysis).toLowerCase() === 'true'
+        : true;
 
     // Validate the request body to make sure
     // it has the important fields like url and method
