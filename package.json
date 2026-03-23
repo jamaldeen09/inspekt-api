@@ -1,0 +1,36 @@
+{
+  "name": "resp-ai-api",
+  "version": "1.0.0",
+  "description": "A simple api for testing other apis with an added ai-overview of the api's response",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "api",
+    "ai",
+    "llm",
+    "api-testing"
+  ],
+  "author": "Olatunji Jamaldeen",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "axios": "^1.13.6",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "openai": "^6.32.0"
+  }
+}
