@@ -5,7 +5,7 @@ import { CustomApiResponse } from "./types/api.types.js";
 import { truncateData, validateUrl } from "./lib/utils.js";
 import axios from "axios";
 import analyze from "./services/analyze.service.js";
-import { ratelimit } from "./upstash";
+import { ratelimit } from "./upstash.js";
 const app = express();
 
 app.set('trust proxy', 1);
