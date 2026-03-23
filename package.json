@@ -1,5 +1,5 @@
 {
-  "name": "resp-ai-api",
+  "name": "inspekt-api",
   "version": "1.0.0",
   "description": "A simple api for testing other apis with an added ai-overview of the api's response",
   "main": "dist/server.js",

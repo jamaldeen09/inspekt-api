@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors"
-import envData from "./lib/env-data";
-import { CustomApiResponse } from "./types/api.types";
-import { truncateData, validateUrl } from "./lib/utils";
+import envData from "./lib/env-data.js";
+import { CustomApiResponse } from "./types/api.types.js";
+import { truncateData, validateUrl } from "./lib/utils.js";
 import axios from "axios";
-import analyze from "./services/analyze.service";
+import analyze from "./services/analyze.service.js";
 import { ratelimit } from "./upstash";
 const app = express();
 
