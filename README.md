@@ -149,7 +149,6 @@ Common issues and how Inspekt handles them:
 |-------|-------|------------|
 | **AI Parsing Error** | Model wrapped JSON in markdown or added extra text | Inspekt automatically strips backticks — if it persists, retry the request |
 | **508 Gateway Timeout** | Upstream API is unreachable or too slow | Verify the target URL is correct and the server isn't behind a firewall |
-| **401 Unauthorized** | Missing or invalid `OPENROUTER_KEY` | Check your `.env` file and ensure the key has active credits |
 | **429 Rate Limited** | AI provider request limit hit | Wait a few seconds — OpenRouter free-tier models have strict RPM limits |
 | **Context Exceeded** | API response body too large for AI context | Inspekt auto-truncates at 8,000 chars via `truncateData()` to prevent this |
 | **Empty Analysis** | `ai_analysis` query param set to `false` | Ensure your request URL isn't accidentally appending `?ai_analysis=false` |
@@ -161,17 +160,3 @@ Common issues and how Inspekt handles them:
 Licensed under the ISC License.
 
 Created by Olatunji Jamaldeen
-------------------------------
-## 🔧 Troubleshooting
-
-Common issues and how Inspekt handles them:
-
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| **AI Parsing Error** | Model wrapped JSON in markdown or added extra text | Inspekt automatically strips backticks — if it persists, retry the request |
-| **508 Gateway Timeout** | Upstream API is unreachable or too slow | Verify the target URL is correct and the server isn't behind a firewall |
-| **429 Rate Limited** | AI provider request limit hit | Wait a few seconds — OpenRouter free-tier models have strict RPM limits |
-| **Context Exceeded** | API response body too large for AI context | Inspekt auto-truncates at 8,000 chars via `truncateData()` to prevent this |
-| **Empty Analysis** | `ai_analysis` query param set to `false` | Ensure your request URL isn't accidentally appending `?ai_analysis=false` |
-------------------------------
-
