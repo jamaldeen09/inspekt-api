@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request } from "express";
 import cors from "cors"
 import envData from "./lib/env-data.js";
 import { CustomApiResponse } from "./types/api.types.js";
@@ -43,6 +43,29 @@ app.use(async (req, res: CustomApiResponse, next) => {
     }
     next();
 });
+
+// ** Wrong method handler informs users that only
+// ** POST requests are allowed
+const wrongMethodHandler = (req: Request, res: CustomApiResponse) => {
+    return res.status(405).json({
+        success: false,
+        message: `${req.method} is not allowed on this endpoint. Use POST`,
+        data: {
+            docs: "https://github.com/jamaldeen09/inspekt-api", 
+            example: {
+                method: "POST",
+                url: "https://inspekt-api-production.up.railway.app/api/v1/analyze",
+                body: { url: "https://jsonplaceholder.typicode.com/posts?_limit=5", method: "GET" }
+            }
+        }
+    });
+};
+
+// ** ----- OTHER METHODS ----- ** \\
+app.get("/api/v1/analyze", wrongMethodHandler);
+app.put("/api/v1/analyze", wrongMethodHandler);
+app.patch("/api/v1/analyze", wrongMethodHandler);
+app.delete("/api/v1/analyze", wrongMethodHandler);
 
 
 // ** ----- ENDPOINT | /api/v1/analyze --------
