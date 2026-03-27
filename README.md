@@ -78,8 +78,8 @@ Proxies a request to your target URL and returns the raw response plus an option
 
 #### Query Parameters
 
-| Parameter    | Type    | Default | Description                            |
-|--------------|---------|---------|----------------------------------------|
+| Parameter     | Type    | Default | Description                            |
+| ------------- | ------- | ------- | -------------------------------------- |
 | `ai_analysis` | boolean | `true`  | Set to `false` to skip the AI overview |
 
 #### Request Body
@@ -97,12 +97,12 @@ Proxies a request to your target URL and returns the raw response plus an option
 }
 ```
 
-| Field     | Type   | Required | Description                                  |
-|-----------|--------|----------|----------------------------------------------|
-| `url`     | string | ✅ Yes   | The target API URL (must be http or https)   |
+| Field     | Type   | Required | Description                                          |
+| --------- | ------ | -------- | ---------------------------------------------------- |
+| `url`     | string | ✅ Yes   | The target API URL (must be http or https)           |
 | `method`  | string | ✅ Yes   | HTTP method: `GET`, `POST`, `PUT`, `PATCH`, `DELETE` |
-| `headers` | object | ❌ No    | Request headers to forward                   |
-| `body`    | object | ❌ No    | Request body to forward                      |
+| `headers` | object | ❌ No    | Request headers to forward                           |
+| `body`    | object | ❌ No    | Request body to forward                              |
 
 #### Success Response `200 OK`
 
@@ -111,7 +111,11 @@ Proxies a request to your target URL and returns the raw response plus an option
   "success": true,
   "message": "Analysis completed successfully",
   "data": {
-    "response": { /* Raw API response from the target URL */ },
+    "response": {
+      "status": {/* Status code */},
+      "headers": { "content-type": "application/json", "...": "..." },
+      "data": {/* Raw API response from the target URL */}
+    },
     "analysis": {
       "summary": "One sentence description of what happened",
       "status": { "code": 200, "meaning": "OK", "expected": true },
@@ -134,15 +138,24 @@ Proxies a request to your target URL and returns the raw response plus an option
 }
 ```
 
+
+#### Security & Privacy
+
+Inspekt is designed with developer security in mind:
+
+- **Local Redaction** - Before any data is sent to the AI for analysis, Inspekt runs a local "Scrub" utility.
+- **Key Protection** - Headers matching authorization, cookie, key, or password are replaced with [REDACTED_BY_INSPEKT].
+- **Headless Proxy** - We do not store your request bodies or credentials; they exist only in memory during the proxy cycle.
+
 #### Rate Limit Headers
 
 Every response includes standard rate limit headers:
 
-| Header                | Description                              |
-|-----------------------|------------------------------------------|
-| `X-RateLimit-Limit`     | Maximum requests allowed in the window  |
+| Header                  | Description                              |
+| ----------------------- | ---------------------------------------- |
+| `X-RateLimit-Limit`     | Maximum requests allowed in the window   |
 | `X-RateLimit-Remaining` | Requests remaining in the current window |
-| `X-RateLimit-Reset`     | Timestamp when the window resets        |
+| `X-RateLimit-Reset`     | Timestamp when the window resets         |
 
 ---
 
@@ -161,14 +174,14 @@ Inspekt categorizes failures to help you debug faster:
 
 Common issues and how Inspekt handles them:
 
-| Issue | Cause | Resolution |
-|-------|-------|------------|
-| **AI Parsing Error** | Model wrapped JSON in markdown or added extra text | Inspekt automatically strips backticks — if it persists, retry the request |
-| **508 Gateway Timeout** | Upstream API is unreachable or too slow | Verify the target URL is correct and the server isn't behind a firewall |
-| **401 Unauthorized** | Missing or invalid `OPENROUTER_KEY` | Check your `.env` file and ensure the key has active credits |
-| **429 Rate Limited** | AI provider request limit hit | Wait a few seconds — OpenRouter free-tier models have strict RPM limits |
-| **Context Exceeded** | API response body too large for AI context | Inspekt auto-truncates at 8,000 chars via `truncateData()` to prevent this |
-| **Empty Analysis** | `ai_analysis` query param set to `false` | Ensure your request URL isn't accidentally appending `?ai_analysis=false` |
+| Issue                   | Cause                                              | Resolution                                                                 |
+| ----------------------- | -------------------------------------------------- | -------------------------------------------------------------------------- |
+| **AI Parsing Error**    | Model wrapped JSON in markdown or added extra text | Inspekt automatically strips backticks — if it persists, retry the request |
+| **508 Gateway Timeout** | Upstream API is unreachable or too slow            | Verify the target URL is correct and the server isn't behind a firewall    |
+| **401 Unauthorized**    | Missing or invalid `OPENROUTER_KEY`                | Check your `.env` file and ensure the key has active credits               |
+| **429 Rate Limited**    | AI provider request limit hit                      | Wait a few seconds — OpenRouter free-tier models have strict RPM limits    |
+| **Context Exceeded**    | API response body too large for AI context         | Inspekt auto-truncates at 8,000 chars via `truncateData()` to prevent this |
+| **Empty Analysis**      | `ai_analysis` query param set to `false`           | Ensure your request URL isn't accidentally appending `?ai_analysis=false`  |
 
 ---
 

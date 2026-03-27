@@ -2,7 +2,7 @@ import express, { Request } from "express";
 import cors from "cors"
 import envData from "./lib/env-data.js";
 import { CustomApiResponse } from "./types/api.types.js";
-import { truncateData, validateUrl } from "./lib/utils.js";
+import { scrub, truncateData, validateUrl } from "./lib/utils.js";
 import axios from "axios";
 import analyze from "./services/analyze.service.js";
 import { ratelimit } from "./upstash.js";
@@ -71,6 +71,15 @@ app.delete("/api/v1/analyze", wrongMethodHandler);
 // ** ----- ENDPOINT | /api/v1/analyze --------
 // ** Query params: ai_analysis - BOOLEAN |
 // ** Params: none 
+
+
+// ** [CHANGELOG] **
+// **  - Making the ai only used when necessary to prevent users/clients from spending money just because they made 100 successfull requests
+
+
+// ** ----- [NEW UPDATE 01] ------ ** \\
+// ** 1. Updated "response" object to also have response headers not just only the response body
+// ** 2. Added new utility that hides sensitive keys from the ai by checking headers for keys like: "authorization" etc...
 app.post("/api/v1/analyze", async (req, res: CustomApiResponse) => {
     const body = req.body;
     const query = req.query;
@@ -109,7 +118,6 @@ app.post("/api/v1/analyze", async (req, res: CustomApiResponse) => {
     // Analysis variable
     let analysis = null;
     try {
-
         // Now we make an axios request so we can test
         // the client's requested api
         const axiosResponse = await axios({
@@ -124,7 +132,7 @@ app.post("/api/v1/analyze", async (req, res: CustomApiResponse) => {
         if (shouldAnalyze) {
             analysis = await analyze({
                 url: body.url,
-                reqHeaders: body?.headers ?? {},
+                reqHeaders: scrub(body?.headers ?? {}),
                 resHeaders: axiosResponse.headers,
                 method: body.method,
                 body: truncateData(axiosResponse.data),
@@ -147,7 +155,11 @@ app.post("/api/v1/analyze", async (req, res: CustomApiResponse) => {
                 ? "Analysis completed successfully"
                 : "Request successful, AI analysis was skipped as requested",
             data: {
-                response: axiosResponse.data,
+                response: {
+                    headers: axiosResponse.headers,
+                    data: axiosResponse.data,
+                    status: axiosResponse.status,
+                },
                 analysis: analysis?.data ?? null,
             }
         })
@@ -163,7 +175,7 @@ app.post("/api/v1/analyze", async (req, res: CustomApiResponse) => {
                 if (shouldAnalyze) {
                     analysis = await analyze({
                         url: body.url,
-                        reqHeaders: body?.headers ?? {},
+                        reqHeaders: scrub(body?.headers ?? {}),
                         resHeaders: headers,
                         method: body.method,
                         body: truncateData(data),
@@ -186,7 +198,7 @@ app.post("/api/v1/analyze", async (req, res: CustomApiResponse) => {
                         ? "Analysis completed successfully"
                         : "Request successful, AI analysis was skipped as requested",
                     data: {
-                        response: data,
+                        response: { headers: scrub(headers), data, status },
                         analysis: analysis?.data ?? null,
                     }
                 })

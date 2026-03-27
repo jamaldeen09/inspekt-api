@@ -20,8 +20,8 @@ export const truncateData = (data: any): string => {
     const LIMIT = 8000
     // If it's already a string (like HTML), just slice it
     if (typeof data === 'string') {
-        return data.length > LIMIT 
-            ? data.slice(0, LIMIT) + "\n[NOTICE: HTML truncated for analysis]" 
+        return data.length > LIMIT
+            ? data.slice(0, LIMIT) + "\n[NOTICE: HTML truncated for analysis]"
             : data;
     }
 
@@ -29,9 +29,27 @@ export const truncateData = (data: any): string => {
     const stringified = JSON.stringify(data);
 
     if (stringified.length > LIMIT) {
-        return stringified.slice(0, LIMIT) + 
+        return stringified.slice(0, LIMIT) +
             `\n\n[WARNING: JSON body truncated. Only the first ${LIMIT} characters were sent for analysis.]`;
     }
 
     return stringified;
+}
+
+
+/**
+ * Checks for sensitive values in the header for
+ * each request to make sure private keys isn't revealed to the ai
+ * @param obj  
+ */
+export const scrub = (obj: any) => {
+    const sensitive = ['authorization', 'cookie', 'password', 'token', 'key'];
+    const newObj = { ...obj };
+
+    for (let key in newObj) {
+        if (sensitive.some(s => key.toLowerCase().includes(s))) {
+            newObj[key] = "[REDACTED_BY_INSPEKT]";
+        }
+    }
+    return newObj;
 }
